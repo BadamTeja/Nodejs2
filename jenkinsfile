@@ -1,0 +1,29 @@
+pipeline {
+    agent any 
+
+    stages {
+        stage('Checkout') {
+            steps {
+               checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/yagop/node-telegram-bot-api.git']])
+            }
+        }
+
+        stage('Install') {
+            steps {
+                sh 'npm install'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'npm run build || echo "No build script found"'
+            }
+        }
+        stage('Create Artifact') {
+            steps {
+                 sh 'tar --exclude=node-app.tar.gz -czf node-app.tar.gz *'
+                 archiveArtifacts artifacts: 'node-app.tar.gz'
+            }
+        }
+    }
+}
